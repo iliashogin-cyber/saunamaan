@@ -1,2 +1,2 @@
 # saunamaan
-Sauna booking calendar
+This is a sauna booking calendar app.
