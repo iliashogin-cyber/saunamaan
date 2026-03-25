@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="bookings-page">
+    <h1>My bookings</h1>
+
+    {% if bookings %}
+
+    {% if grouped %}
+    <div class="booking-list">
+        {% for b in bookings %}
+        <div class="booking-row {% if b.is_recurring %}booking-recurring{% else %}booking-once{% endif %}">
+            <div class="booking-main">
+                <span class="booking-space">{{ b.space_name }}</span>
+                <span class="booking-time">
+                    {{ b.day_of_week }}
+                    {{ b.time_start }}–{{ b.time_end }}
+                </span>
+                {% if b.is_recurring %}
+                <span class="booking-detail">
+                    Vakiovuoro · {{ b.count }} reservations ·
+                    until {{ b.valid_until }}
+                </span>
+                {% else %}
+                <span class="booking-detail">{{ b.date }} · One-time</span>
+                {% endif %}
+            </div>
+            <div class="booking-actions">
+                {% if b.is_recurring %}
+                    <span class="badge free">Weekly</span>
+                {% else %}
+                    <span class="badge taken">Once</span>
+                {% endif %}
+                <form method="POST"
+                      action="/bookings/{{ b.id }}/delete">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ session.csrf_token }}">
+                    {% if b.is_recurring %}
+                    <input type="hidden" name="cancel_series" value="1">
+                    {% endif %}
+                    <button type="submit" class="btn-cancel">Cancel</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <table>
+        <tr>
+            <th>Space</th>
+            <th>Day</th>
+            <th>Time</th>
+            <th>User</th>
+            <th>Type</th>
+        </tr>
+        {% for b in bookings %}
+        <tr>
+            <td>{{ b.space_name }}</td>
+            <td>{{ b.start_time[:10] }}</td>
+            <td>{{ b.start_time[11:16] }}–{{ b.end_time[11:16] }}</td>
+            <td>{{ b.username }}</td>
+            <td>{% if b.is_recurring %}
+                    <span class="badge free">Weekly</span>
+                {% else %}
+                    <span class="badge taken">Once</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% else %}
+        <p class="no-slots">No bookings yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

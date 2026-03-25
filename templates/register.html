@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Register</h1>
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+<form method="POST" action="/register">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" maxlength="12" required>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+
+    <label for="password2">Repeat password</label>
+    <input type="password" id="password2" name="password2" required>
+
+    <button type="submit">Register</button>
+</form>
+{% endblock %}

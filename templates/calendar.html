@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="calendar-container">
+    <div class="calendar-header">
+        <a href="/calendar/{{ prev_year }}/{{ prev_month }}" class="cal-nav">&larr;</a>
+        <h2>{{ month_name }} {{ year }}</h2>
+        <a href="/calendar/{{ next_year }}/{{ next_month }}" class="cal-nav">&rarr;</a>
+    </div>
+
+    <table class="calendar-grid">
+        <tr>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+        </tr>
+        {% for week in cal %}
+        <tr>
+            {% for day in week %}
+            {% if day == 0 %}
+                <td class="empty"></td>
+            {% else %}
+                {% set day_str = "%d-%02d-%02d" | format(year, month, day) %}
+                {% set is_today = (day == today.day and month == today.month and year == today.year) %}
+                {% set has_slots = day_str in active_dates %}
+                <td class="
+                    {% if is_today %}today{% endif %}
+                    {% if has_slots %}has-slots{% endif %}
+                ">
+                    {% if has_slots %}
+                        <a href="/calendar/{{ day_str }}">{{ day }}</a>
+                    {% else %}
+                        {{ day }}
+                    {% endif %}
+                </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="calendar-legend">
+        <span class="legend-dot has-slots-dot"></span> Slots available
+        <span class="legend-dot today-dot"></span> Today
+    </div>
+</div>
+{% endblock %}

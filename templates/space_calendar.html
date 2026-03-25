@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="cal-page">
+
+    <div class="cal-topbar">
+        <a href="/" class="back-link">&larr; All spaces</a>
+        <h1>{{ space.name }}</h1>
+        <div class="view-toggle">
+            <a href="/spaces/{{ space.id }}/calendar?view=week"
+               class="toggle-btn {% if view == 'week' %}active{% endif %}">Week</a>
+            <a href="/spaces/{{ space.id }}/calendar?view=month"
+               class="toggle-btn {% if view == 'month' %}active{% endif %}">Month</a>
+        </div>
+    </div>
+
+
+    {# ── WEEK VIEW ──────────────────────────────────────── #}
+    {% if view == "week" %}
+
+    <div class="week-nav">
+        <a href="/spaces/{{ space.id }}/calendar?view=week&week={{ prev_monday }}" class="cal-nav">&larr;</a>
+        <span class="week-label">
+            {{ week_days[0].date.strftime("%b %d") }} – {{ week_days[6].date.strftime("%b %d, %Y") }}
+        </span>
+        <a href="/spaces/{{ space.id }}/calendar?view=week&week={{ next_monday }}" class="cal-nav">&rarr;</a>
+    </div>
+
+    <div class="week-grid">
+        {% for day in week_days %}
+        <div class="day-col {% if day.is_today %}day-today{% endif %} {% if day.is_past %}day-past{% endif %}">
+            <div class="day-header">
+                <span class="day-name">{{ day.name }}</span>
+                <span class="day-num">{{ day.date.day }}</span>
+            </div>
+            <div class="day-body">
+                {% if day.slots %}
+                    {% for slot in day.slots %}
+                        {% if slot["booking_id"] %}
+                        <div class="time-slot slot-booked">
+                            <span class="slot-time">{{ slot["start_time"][11:16] }}</span>
+                            <span class="slot-tag">Booked</span>
+                        </div>
+                        {% elif day.is_past %}
+                        <div class="time-slot slot-past">
+                            <span class="slot-time">{{ slot["start_time"][11:16] }}</span>
+                        </div>
+                        {% else %}
+                        <a href="/spaces/{{ space.id }}/calendar?view=week&week={{ monday_str }}&selected={{ slot['id'] }}"
+                           class="time-slot {% if slot['allows_recurring'] %}slot-recurring{% else %}slot-once{% endif %} {% if selected_slot_id == slot['id'] %}slot-selected{% endif %}">
+                            <span class="slot-time">{{ slot["start_time"][11:16] }}</span>
+                            <span class="slot-tag">
+                                {% if slot["allows_recurring"] %}Weekly{% else %}Once{% endif %}
+                            </span>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <span class="day-empty">—</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="week-legend">
+        <span class="legend-item"><span class="dot dot-recurring"></span>Available – weekly</span>
+        <span class="legend-item"><span class="dot dot-once"></span>Available – one-time</span>
+        <span class="legend-item"><span class="dot dot-booked"></span>Booked</span>
+        {% if selected_slot_id %}<span class="legend-item"><span class="dot dot-selected"></span>Selected</span>{% endif %}
+    </div>
+
+
+    {# ── BOOKING CONFIRM PANEL ──────────────────────────── #}
+    {% if selected_slot_data %}
+    <div class="confirm-panel">
+        <div class="confirm-info">
+            <strong>{{ selected_slot_data.space_name }}</strong><br>
+            {{ selected_slot_data.start_time }} –
+            {{ selected_slot_data.end_time[11:16] }}
+        </div>
+        <form method="POST" action="/bookings/new/{{ selected_slot_data.id }}"
+            class="confirm-form">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+            {% if "sauna" in selected_slot_data.space_name.lower()
+                and selected_slot_data.allows_recurring %}
+            <label class="checkbox-label">
+                <input type="checkbox" name="is_recurring" value="1">
+                Reserve as weekly vakiovuoro
+            </label>
+            {% endif %}
+
+            <button type="submit" class="btn-confirm">Confirm booking</button>
+        </form>
+    </div>
+    {% endif %}
+
+
+
+    {# ── MONTH VIEW ─────────────────────────────────────── #}
+    {% else %}
+
+    <div class="cal-header">
+        <a href="/spaces/{{ space.id }}/calendar?view=month&year={{ prev_year }}&month={{ prev_month }}"
+           class="cal-nav">&larr;</a>
+        <span class="month-label">{{ month_name }} {{ year }}</span>
+        <a href="/spaces/{{ space.id }}/calendar?view=month&year={{ next_year }}&month={{ next_month }}"
+           class="cal-nav">&rarr;</a>
+    </div>
+
+    <table class="month-grid">
+        <tr>
+            <th>Mon</th><th>Tue</th><th>Wed</th>
+            <th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+        </tr>
+        {% for week in cal %}
+        <tr>
+            {% for day in week %}
+            {% if day == 0 %}
+                <td class="m-empty"></td>
+            {% else %}
+                {% set day_str = "%d-%02d-%02d" | format(year, month, day) %}
+                {% set status = day_status.get(day_str, "empty") %}
+                {% set is_today = (day == today.day and month == today.month and year == today.year) %}
+                <td class="m-day m-{{ status }} {% if is_today %}m-today{% endif %}">
+                    {% if status != "empty" %}
+                        <a href="/spaces/{{ space.id }}/calendar?view=week&week={{ day_str }}">
+                            {{ day }}
+                        </a>
+                    {% else %}
+                        {{ day }}
+                    {% endif %}
+                </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="month-legend">
+        <span class="legend-item"><span class="dot dot-available"></span>Available</span>
+        <span class="legend-item"><span class="dot dot-partial"></span>Partially booked</span>
+        <span class="legend-item"><span class="dot dot-full"></span>Fully booked</span>
+    </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

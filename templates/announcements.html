@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="ann-page">
+
+    <div class="ann-topbar">
+        <h1>Announcements</h1>
+        {% if session.is_head %}
+        <a href="/announcements/new" class="btn-primary">+ New announcement</a>
+        {% endif %}
+    </div>
+
+    {% if announcements %}
+    <div class="ann-list">
+        {% for a in announcements %}
+        <div class="ann-card">
+            <div class="ann-body">
+                <strong class="ann-title">{{ a.title }}</strong>
+                <p class="ann-content">{{ a.content }}</p>
+                <div class="ann-meta">
+                    <span>{{ a.username }}</span>
+                    <span>{{ a.created_at[:10] }}</span>
+                    {% if a.updated_at %}
+                        <span class="ann-edited">edited {{ a.updated_at[:10] }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="ann-footer">
+                <div class="reactions">
+                    {% for emoji in ["👍", "👎", "❤️", "😂", "😮", "👏"] %}
+                    <form method="POST"
+                          action="/announcements/{{ a.id }}/react"
+                          class="reaction-form">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ session.csrf_token }}">
+                        <input type="hidden" name="emoji" value="{{ emoji }}">
+                        <button type="submit"
+                                class="reaction-btn
+                                {% if a.user_reaction == emoji %}reaction-active{% endif %}">
+                            {{ emoji }}
+                            {% for r in a.reactions %}
+                                {% if r.emoji == emoji %}
+                                    <span class="reaction-count">{{ r.count }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+
+                {% if session.is_head %}
+                <div class="ann-actions">
+                    <a href="/announcements/{{ a.id }}/edit"
+                       class="btn-edit">Edit</a>
+                    <form method="POST"
+                          action="/announcements/{{ a.id }}/delete"
+                          class="inline-form" style="margin:0">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ session.csrf_token }}">
+                        <button type="submit" class="btn-danger">Delete</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="no-slots">No announcements yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

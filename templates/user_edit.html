@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Edit profile — {{ user.username }}</h1>
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+<form method="POST" action="/user/{{ user.id }}/edit">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+    <label for="apartment">Apartment number</label>
+    <input type="text" id="apartment" name="apartment"
+           value="{{ user.apartment or '' }}" maxlength="20">
+
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

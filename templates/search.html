@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Search slots</h1>
+<div class="search-forms">
+    <form method="GET" action="/search" class="search-form">
+        <label for="query">Search by space name</label>
+        <div class="search-row">
+            <input type="text" id="query" name="query"
+                   value="{{ query }}" placeholder="e.g. Sauna" maxlength="50">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <form method="GET" action="/search" class="search-form">
+        <label for="date">Search by date</label>
+        <div class="search-row">
+            <input type="date" id="date" name="date" value="{{ search_date }}">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+</div>
+
+{% if query or search_date %}
+    {% if results %}
+    <div class="slot-list">
+        {% for slot in results %}
+        <div class="slot-card {% if slot.booking_id %}slot-taken{% else %}slot-free{% endif %}">
+            <div class="slot-info">
+                <span class="slot-space">{{ slot.space_name }}</span>
+                <span class="slot-time">
+                    {{ slot.start_time }} &ndash; {{ slot.end_time[11:16] }}
+                </span>
+            </div>
+            <div class="slot-status">
+                {% if slot.booking_id %}
+                    <span class="badge taken">Booked</span>
+                {% else %}
+                    <span class="badge free">Available</span>
+                    <a href="/bookings/new/{{ slot.id }}" class="btn-book">Book</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="no-slots">No slots found.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

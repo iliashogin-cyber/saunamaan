@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>New booking</h1>
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+<p>
+    <strong>Space:</strong> {{ slot.space_name }}<br>
+    <strong>Start:</strong> {{ slot.start_time }}<br>
+    <strong>End:</strong> {{ slot.end_time }}
+</p>
+<form method="POST" action="/bookings/new/{{ slot.id }}">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+    <label for="category_id">Category</label>
+    <select id="category_id" name="category_id">
+        {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="is_recurring">
+        <input type="checkbox" id="is_recurring" name="is_recurring" value="1">
+        Recurring weekly booking
+    </label>
+
+    <button type="submit">Confirm booking</button>
+</form>
+{% endblock %}

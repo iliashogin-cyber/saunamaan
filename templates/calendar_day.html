@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="day-view">
+    <a href="/calendar" class="back-link">&larr; Back to calendar</a>
+    <h2>{{ day_date }}</h2>
+
+    {% if slots %}
+    <div class="slot-list">
+        {% for slot in slots %}
+        <div class="slot-card {% if slot.booking_id %}slot-taken{% else %}slot-free{% endif %}">
+            <div class="slot-info">
+                <span class="slot-space">{{ slot.space_name }}</span>
+                <span class="slot-time">
+                    {{ slot.start_time[11:16] }} &ndash; {{ slot.end_time[11:16] }}
+                </span>
+            </div>
+            <div class="slot-status">
+                {% if slot.booking_id %}
+                    <span class="badge taken">Booked</span>
+                    {% if session.is_head %}
+                        <span class="booked-by">by {{ slot.booked_by }}</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge free">Available</span>
+                    <a href="/bookings/new/{{ slot.id }}" class="btn-book">Book</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="no-slots">No slots on this day.</p>
+    {% endif %}
+</div>
+{% endblock %}

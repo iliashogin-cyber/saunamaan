@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Time slots</h1>
+{% if session.is_head %}
+    <a href="/slots/new">Add new slot</a>
+{% endif %}
+{% if slots %}
+<table>
+    <tr>
+        <th>Space</th>
+        <th>Start</th>
+        <th>End</th>
+        {% if session.is_head %}<th>Actions</th>{% endif %}
+    </tr>
+    {% for slot in slots %}
+    <tr>
+        <td>{{ slot.space_name }}</td>
+        <td>{{ slot.start_time }}</td>
+        <td>{{ slot.end_time }}</td>
+        <td>
+            {% if session.user_id %}
+                <a href="/bookings/new/{{ slot.id }}">Book</a>
+            {% endif %}
+            {% if session.is_head %}
+                <a href="/slots/{{ slot.id }}/edit">Edit</a>
+                <form method="POST" action="/slots/{{ slot.id }}/delete">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    <button type="submit">Delete</button>
+                </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+    <p>No time slots yet.</p>
+{% endif %}
+{% endblock %}

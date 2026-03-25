@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>{{ user.username }}</h1>
+
+<section>
+    <h2>Details</h2>
+    <p><strong>Apartment:</strong> {{ user.apartment or "Not set" }}</p>
+    <p><strong>Role:</strong> {{ "Head user" if user.is_head else "Resident" }}</p>
+    {% if session.user_id == user.id or session.is_head %}
+        <a href="/user/{{ user.id }}/edit">Edit details</a>
+    {% endif %}
+</section>
+
+<section>
+    <h2>Statistics</h2>
+    {% if stats %}
+    <p><strong>Total bookings:</strong> {{ stats.total_bookings }}</p>
+    <p><strong>Recurring bookings:</strong> {{ stats.recurring_bookings or 0 }}</p>
+    <p><strong>Spaces used:</strong> {{ stats.spaces_used }}</p>
+    {% else %}
+        <p>No bookings yet.</p>
+    {% endif %}
+</section>
+
+<section>
+    <h2>Bookings</h2>
+    {% if bookings %}
+    <table>
+        <tr>
+            <th>Space</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Category</th>
+            <th>Recurring</th>
+            <th>Actions</th>
+        </tr>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.space_name }}</td>
+            <td>{{ booking.start_time }}</td>
+            <td>{{ booking.end_time }}</td>
+            <td>{{ booking.category_name }}</td>
+            <td>{{ "Yes" if booking.is_recurring else "No" }}</td>
+            <td>
+                <a href="/bookings/{{ booking.id }}/edit">Edit</a>
+                <form method="POST" action="/bookings/{{ booking.id }}/delete">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ session.csrf_token }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No bookings yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

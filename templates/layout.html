@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saunamaan</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        {% if session.user_id %}
+            <a href="/spaces">Book</a>
+            <a href="/announcements">Announcements</a>
+            <a href="/bookings">My bookings</a>
+            <a href="/user/{{ session.user_id }}">My page</a>
+            {% if session.is_head %}
+                <a href="/admin/availability">Availability</a>
+                <a href="/admin">Admin</a>
+            {% endif %}
+            <a href="/logout">Logout ({{ session.username }})</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

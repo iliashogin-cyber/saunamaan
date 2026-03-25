@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Admin panel</h1>
+
+<section>
+    <h2>All users</h2>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>Apartment</th>
+            <th>Role</th>
+            <th>Profile</th>
+        </tr>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.apartment or "—" }}</td>
+            <td>{{ "Head user" if u.is_head else "Resident" }}</td>
+            <td><a href="/user/{{ u.id }}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section>
+    <h2>All bookings</h2>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Space</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Category</th>
+            <th>Recurring</th>
+            <th>Actions</th>
+        </tr>
+        {% for booking in bookings %}
+        <tr>
+            <td><a href="/user/{{ booking.user_id }}">{{ booking.username }}</a></td>
+            <td>{{ booking.space_name }}</td>
+            <td>{{ booking.start_time }}</td>
+            <td>{{ booking.end_time }}</td>
+            <td>{{ booking.category_name }}</td>
+            <td>{{ "Yes" if booking.is_recurring else "No" }}</td>
+            <td>
+                <a href="/bookings/{{ booking.id }}/edit">Edit</a>
+                <form method="POST" action="/bookings/{{ booking.id }}/delete">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ session.csrf_token }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+{% endblock %}

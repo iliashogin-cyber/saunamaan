@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="home-page">
+    <section class="spaces-section">
+        <h2>Book a shared space</h2>
+        <div class="space-grid">
+            {% for space in spaces %}
+                {% if "sauna" in space.name.lower() %}
+                <a href="/spaces/{{ space.id }}/calendar"
+                   class="space-card space-card-featured">
+                    <div class="space-icon">🧖</div>
+                    <span class="space-name">{{ space.name }}</span>
+                    <span class="space-cta">View schedule →</span>
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="space-grid space-grid-secondary">
+            {% for space in spaces %}
+                {% if "sauna" not in space.name.lower() %}
+                <a href="/spaces/{{ space.id }}/calendar" class="space-card">
+                    <div class="space-icon">
+                        {% if "laundry" in space.name.lower() or "washing" in space.name.lower() %}🫧
+                        {% elif "drying" in space.name.lower() %}💨
+                        {% elif "club" in space.name.lower() %}🏠
+                        {% else %}📅
+                        {% endif %}
+                    </div>
+                    <span class="space-name">{{ space.name }}</span>
+                    <span class="space-cta">View schedule →</span>
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

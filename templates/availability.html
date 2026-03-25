@@ -1,0 +1,214 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="avail-page">
+
+    <div class="avail-topbar">
+        <h1>Availability management</h1>
+        <a href="/admin" class="back-link">← Admin panel</a>
+    </div>
+
+    <div class="avail-top-row">
+
+        <div class="space-selector">
+            <h2>Spaces</h2>
+            <div class="space-btn-list">
+                {% for space in spaces %}
+                <a href="/admin/availability/{{ space.id }}"
+                   class="space-btn {% if selected_space and selected_space.id == space.id %}space-btn-active{% endif %}">
+                    {{ space.name }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <form method="POST" action="/admin/spaces/new" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <label for="new_space_name">Add new space</label>
+                <div class="search-row">
+                    <input type="text" id="new_space_name" name="name"
+                           placeholder="e.g. Gym" maxlength="50">
+                    <button type="submit">Add</button>
+                </div>
+            </form>
+        </div>
+
+        {% if selected_space %}
+        <div class="avail-form-wrap">
+            <h2>Add availability — {{ selected_space.name }}</h2>
+            <form method="POST"
+                  action="/admin/availability/{{ selected_space.id }}/generate"
+                  class="avail-form">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+                <label for="day_of_week">Day(s)</label>
+                <select id="day_of_week" name="day_of_week">
+                    <option value="7">Every day</option>
+                    <option value="0">Monday</option>
+                    <option value="1">Tuesday</option>
+                    <option value="2">Wednesday</option>
+                    <option value="3">Thursday</option>
+                    <option value="4">Friday</option>
+                    <option value="5">Saturday</option>
+                    <option value="6">Sunday</option>
+                </select>
+
+                <div class="form-row">
+                    <div>
+                        <label for="start_time">Open from</label>
+                        <input type="time" id="start_time" name="start_time"
+                               value="08:00" required>
+                    </div>
+                    <div>
+                        <label for="end_time">Open until</label>
+                        <input type="time" id="end_time" name="end_time"
+                               value="22:00" required>
+                    </div>
+                    <div>
+                        <label for="slot_duration">Slot (min)</label>
+                        <select id="slot_duration" name="slot_duration">
+                            <option value="30">30 min</option>
+                            <option value="60" selected>60 min</option>
+                            <option value="90">90 min</option>
+                            <option value="120">120 min</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label for="valid_from">From date</label>
+                        <input type="date" id="valid_from" name="valid_from"
+                               value="{{ today }}" required>
+                    </div>
+                    <div>
+                        <label for="valid_until">Until date</label>
+                        <input type="date" id="valid_until" name="valid_until"
+                               value="{{ today.year }}-12-31" required>
+                    </div>
+                </div>
+                    <div>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="allows_recurring" value="1" checked>
+                            Allow weekly vakiovuoro booking for these slots
+                        </label>
+                    </div>
+                <button type="submit">Generate slots</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+
+    {% if selected_space %}
+
+    <div class="avail-week">
+        <div class="week-nav">
+            <a href="/admin/availability/{{ selected_space.id }}?week={{ prev_monday }}"
+               class="cal-nav">←</a>
+            <span class="week-label">
+                {{ week_days[0].date.strftime("%b %d") }} –
+                {{ week_days[6].date.strftime("%b %d, %Y") }}
+            </span>
+            <a href="/admin/availability/{{ selected_space.id }}?week={{ next_monday }}"
+               class="cal-nav">→</a>
+        </div>
+
+        <div class="week-grid">
+            {% for day in week_days %}
+            <div class="day-col {% if day.is_today %}day-today{% endif %}">
+                <div class="day-header">
+                    <span class="day-name">{{ day.name }}</span>
+                    <span class="day-num">{{ day.date.day }}</span>
+                </div>
+                <div class="day-body">
+                    {% if day.slots %}
+                        {% for slot in day.slots %}
+                        <div class="time-slot {% if slot.booking_id %}slot-booked{% else %}slot-recurring{% endif %}">
+                            <span class="slot-time">{{ slot.start_time[11:16] }}</span>
+                            {% if slot.booking_id %}
+                                <span class="slot-tag">{{ slot.booked_by }}</span>
+                            {% else %}
+                                <form method="POST"
+                                      action="/slots/{{ slot.id }}/delete"
+                                      style="margin:0">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ session.csrf_token }}">
+                                    <button class="slot-del">×</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <span class="day-empty">—</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="week-legend">
+            <span class="legend-item">
+                <span class="dot dot-recurring"></span>Available
+            </span>
+            <span class="legend-item">
+                <span class="dot dot-booked"></span>Booked (× to delete only unbooked)
+            </span>
+        </div>
+    </div>
+
+
+    <div class="avail-templates">
+        <h2>Active templates</h2>
+        {% if templates %}
+        <table>
+            <tr>
+                <th>Day</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Slot</th>
+                <th>Valid from</th>
+                <th>Valid until</th>
+                <th></th>
+            </tr>
+            {% for t in templates %}
+            <tr>
+                <td>{{ t.day_name }}</td>
+                <td>{{ t.start_time }}</td>
+                <td>{{ t.end_time }}</td>
+                <td>{{ t.slot_duration }} min</td>
+                <td>{{ t.valid_from }}</td>
+                <td>{{ t.valid_until }}</td>
+                <td>
+                    <form method="POST"
+                          action="/admin/availability/template/{{ t.id }}/delete">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ session.csrf_token }}">
+                        <input type="hidden" name="space_id"
+                               value="{{ selected_space.id }}">
+                        <button type="submit" class="btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            <p class="no-slots">No templates yet.</p>
+        {% endif %}
+
+        <div class="delete-from-wrap">
+            <h2>Delete future slots</h2>
+            <p class="hint">Removes all unbooked slots from a date onwards for this space.</p>
+            <form method="POST"
+                  action="/admin/availability/{{ selected_space.id }}/delete_from"
+                  class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <div class="search-row">
+                    <input type="date" name="from_date" value="{{ today }}">
+                    <button type="submit" class="btn-danger">Delete from date</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

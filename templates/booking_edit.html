@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Edit booking</h1>
+<p>
+    <strong>{{ booking.space_name }}</strong><br>
+    {{ booking.start_time }} – {{ booking.end_time[11:16] }}
+</p>
+<form method="POST" action="/bookings/{{ booking.id }}/edit">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+    {% if "sauna" in booking.space_name.lower() %}
+    <label class="checkbox-label">
+        <input type="checkbox" name="is_recurring" value="1"
+               {% if booking.is_recurring %}checked{% endif %}>
+        Weekly vakiovuoro
+    </label>
+    {% endif %}
+
+    <button type="submit">Save</button>
+</form>
+{% endblock %}
