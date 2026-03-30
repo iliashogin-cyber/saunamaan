@@ -11,3 +11,8 @@ Features:
 - User pages display bookings and other details (e.g., number of apartments).
 - Users can select categories for bookings
 - Head users can create announcements - share updates on upcoming changes, shared space rules, and other key information for the housing cooperative.
+
+
+To create database tables:
+`sqlite3 saunamaan.db < schema.sq`l`
+`sqlite3 saunamaan.db < init.sql`
