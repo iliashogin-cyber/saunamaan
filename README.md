@@ -14,5 +14,12 @@ Features:
 
 
 To create database tables:
-`sqlite3 saunamaan.db < schema.sq`l`
+
+`sqlite3 saunamaan.db < schema.sq`
+
 `sqlite3 saunamaan.db < init.sql`
+
+
+And give a user admin rights:
+
+`sqlite3 saunamaan.db "UPDATE users SET is_head = 1 WHERE username = ‘your_username_here’;”`
