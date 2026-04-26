@@ -14,5 +14,5 @@ Features:
 
 
 To create database tables:
-`sqlite3 saunamaan.db < schema.sq`l`
+`sqlite3 saunamaan.db < schema.sql`
 `sqlite3 saunamaan.db < init.sql`
