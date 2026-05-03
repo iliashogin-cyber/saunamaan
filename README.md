@@ -1,4 +1,4 @@
-## saunamaan
+## Saunamaan
 This is a booking calendar app for saunas and other shared spaces.
 
 Features:

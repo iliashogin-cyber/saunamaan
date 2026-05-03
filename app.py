@@ -50,6 +50,7 @@ def register():
     username = request.form["username"].strip()
     password = request.form["password"].strip()
     password2 = request.form["password2"].strip()
+    admin_code = request.form.get("admin_code", "").strip()  # NEW
 
     if not username or len(username) > 12:
         return render_template("register.html",
@@ -61,7 +62,9 @@ def register():
         return render_template("register.html",
                                error="Passwords do not match.")
 
-    user_id = users.register(username, password)
+    is_head = 1 if admin_code == "admin" else 0  # NEW
+
+    user_id = users.register(username, password, is_head)  # UPDATED
     if not user_id:
         return render_template("register.html",
                                error="Username already taken.")

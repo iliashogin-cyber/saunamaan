@@ -14,7 +14,17 @@
 
     <label for="password2">Repeat password</label>
     <input type="password" id="password2" name="password2" required>
-
+    <div>
+        <label for="admin_code">Admin access code (optional)</label>
+        <input
+            type="text"
+            id="admin_code"
+            name="admin_code"
+            placeholder="Enter code if you have one"
+            autocomplete="off"
+        >
+        <small>Leave empty if you don't have an admin code.</small>
+    </div>
     <button type="submit">Register</button>
 </form>
 {% endblock %}

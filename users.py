@@ -3,11 +3,11 @@ from flask import session
 import db
 
 
-def register(username, password):
+def register(username, password, is_head=0):
     password_hash = generate_password_hash(password)
     try:
-        sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-        return db.execute(sql, [username, password_hash])
+        sql = "INSERT INTO users (username, password_hash, is_head) VALUES (?, ?, ?)"
+        return db.execute(sql, [username, password_hash, is_head])
     except Exception:
         return None
 
