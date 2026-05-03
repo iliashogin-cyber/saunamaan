@@ -1,4 +1,4 @@
-# saunamaan
+## saunamaan
 This is a booking calendar app for saunas and other shared spaces.
 
 Features:
@@ -13,11 +13,30 @@ Features:
 - Head users can create announcements - share updates on upcoming changes, shared space rules, and other key information for the housing cooperative.
 
 
-To create database tables:
-`sqlite3 saunamaan.db < schema.sql`
-`sqlite3 saunamaan.db < init.sql`
 
 
+## Installation
+
+Install flask library:
+
+```
+$ pip install flask
+```
+
+Set up database:
+
+```
+$ sqlite3 database.db < schema.sql
+$ sqlite3 database.db < init.sql
+```
+
+Run application:
+
+```
+$ flask run
+```
 And give a user admin rights:
 
-`sqlite3 saunamaan.db "UPDATE users SET is_head = 1 WHERE username = 'your_username_here';”`
+```
+$ `sqlite3 saunamaan.db "UPDATE users SET is_head = 1 WHERE username = 'your_username_here';”`
+```
