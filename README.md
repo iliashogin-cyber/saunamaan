@@ -35,8 +35,9 @@ Run application:
 ```
 $ flask run
 ```
-And give a user admin rights:
+And give a user admin rights is possible during the registration process with "admin" code or:
 
 ```
 $ `sqlite3 saunamaan.db "UPDATE users SET is_head = 1 WHERE username = 'your_username_here';”`
 ```
+
