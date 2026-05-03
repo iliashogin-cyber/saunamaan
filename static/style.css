@@ -755,6 +755,25 @@ tr:hover td { background: #fafafa; }
     max-width: 100%;
 }
 
+.space-info-banner {
+    margin: 0.75rem 0;
+    padding: 0.6rem 1rem;
+    background: #eef4fb;
+    border-left: 3px solid #4a90d9;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.slot-description_text {
+    margin: 0.5rem 0;
+    padding: 0.5rem 0.75rem;
+    background: #f0f4f8;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #444;
+}
+
 .btn-confirm {
     background: #1a1a1a;
     color: #fff;

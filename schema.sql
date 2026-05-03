@@ -26,7 +26,8 @@ CREATE TABLE availability_templates (
     slot_duration INTEGER NOT NULL DEFAULT 60,
     valid_from TEXT NOT NULL,
     valid_until TEXT NOT NULL,
-    created_by INTEGER REFERENCES users(id)
+    created_by INTEGER REFERENCES users(id),
+    description_text TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE slots (
@@ -35,7 +36,8 @@ CREATE TABLE slots (
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
     allows_recurring INTEGER NOT NULL DEFAULT 1,
-    created_by INTEGER REFERENCES users(id)
+    created_by INTEGER REFERENCES users(id),
+    description_text TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE bookings (

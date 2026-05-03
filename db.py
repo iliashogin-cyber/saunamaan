@@ -6,7 +6,9 @@ import config
 def get_connection():
     if "db" not in g:
         g.db = sqlite3.connect(config.DATABASE)
-        g.db.row_factory = sqlite3.Row
+        g.db.row_factory = lambda cursor, row: {
+            col[0]: row[idx] for idx, col in enumerate(cursor.description)
+        }
         g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
 

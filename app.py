@@ -261,6 +261,7 @@ def generate_availability(space_id):
     valid_from = request.form["valid_from"]
     valid_until = request.form["valid_until"]
     allows_recurring = 1 if request.form.get("allows_recurring") else 0
+    description = request.form.get("description", "").strip()
 
     if start_time >= end_time or valid_from > valid_until:
         return redirect("/admin/availability/" + str(space_id))
@@ -269,7 +270,7 @@ def generate_availability(space_id):
                                 end_time, slot_duration,
                                 valid_from, valid_until,
                                 allows_recurring,
-                                session["user_id"])
+                                session["user_id"], description)
     return redirect("/admin/availability/" + str(space_id))
 
 

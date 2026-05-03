@@ -13,6 +13,22 @@
         </div>
     </div>
 
+    {# ── SPACE INFO BANNER ─────────────────────────────── #}
+    {% set space_info = namespace(text="") %}
+    {% if view == "week" %}
+        {% for day in week_days %}
+            {% for slot in day.slots %}
+                {% if slot["description_text"] and not space_info.text %}
+                    {% set space_info.text = slot["description_text"] %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+    {% if space_info.text %}
+    <div class="space-info-banner">
+        ℹ️ {{ space_info.text }}
+    </div>
+    {% endif %}
 
     {# ── WEEK VIEW ──────────────────────────────────────── #}
     {% if view == "week" %}
@@ -78,6 +94,11 @@
             {{ selected_slot_data.start_time }} –
             {{ selected_slot_data.end_time[11:16] }}
         </div>
+        {% if selected_slot_data["description_text"] %}
+        <div class="slot-description_text">
+            ℹ️ {{ selected_slot_data["description_text"] }}
+        </div>
+        {% endif %}
         <form method="POST" action="/bookings/new/{{ selected_slot_data.id }}"
             class="confirm-form">
             <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">

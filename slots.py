@@ -13,7 +13,7 @@ def get_all_slots():
 
 def get_slot(slot_id):
     sql = """SELECT s.id, s.start_time, s.end_time, s.space_id,
-                    s.allows_recurring, sp.name AS space_name,
+                    s.allows_recurring, s.description_text, sp.name AS space_name,
                     sp.default_category_id
              FROM slots s, spaces sp
              WHERE s.id = ? AND s.space_id = sp.id"""
@@ -61,9 +61,10 @@ def delete_future_slots(space_id, from_date):
 
 def get_day_slots(space_id, date_str):
     like = date_str + "%"
-    sql = """SELECT s.id, s.start_time, s.end_time, s.allows_recurring,
-                    b.id AS booking_id, u.username AS booked_by,
-                    b.is_recurring AS booking_recurring
+    sql = """SELECT s.id, s.start_time, s.end_time, s.allows_recurring, 
+             s.description_text,
+             b.id AS booking_id, u.username AS booked_by,
+             b.is_recurring AS booking_recurring
              FROM slots s
              LEFT JOIN bookings b ON b.slot_id = s.id
              LEFT JOIN users u ON b.user_id = u.id
@@ -96,7 +97,7 @@ def get_month_day_status(space_id, year, month):
 def get_templates(space_id):
     day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Every day"]
     sql = """SELECT t.id, t.day_of_week, t.start_time, t.end_time,
-                    t.slot_duration, t.valid_from, t.valid_until
+                    t.slot_duration, t.valid_from, t.valid_until, t.description_text
              FROM availability_templates t
              WHERE t.space_id = ?
              ORDER BY t.valid_from"""
@@ -110,7 +111,8 @@ def get_templates(space_id):
             "end_time": row["end_time"],
             "slot_duration": row["slot_duration"],
             "valid_from": row["valid_from"],
-            "valid_until": row["valid_until"]
+            "valid_until": row["valid_until"],
+            "description_text": row["description_text"] or "",
         })
     return templates
 
@@ -122,7 +124,7 @@ def delete_template(template_id):
 
 def generate_slots(space_id, day_of_week, start_time, end_time,
                    slot_duration, valid_from, valid_until,
-                   allows_recurring, created_by):
+                   allows_recurring, created_by, description_text=""):
     day_of_week = int(day_of_week)
     slot_duration = int(slot_duration)
     allows_recurring = int(allows_recurring)
@@ -130,10 +132,10 @@ def generate_slots(space_id, day_of_week, start_time, end_time,
     db.execute("""
         INSERT INTO availability_templates
             (space_id, day_of_week, start_time, end_time,
-             slot_duration, valid_from, valid_until, created_by)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+             slot_duration, valid_from, valid_until, created_by, description_text)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [space_id, day_of_week, start_time, end_time,
-          slot_duration, valid_from, valid_until, created_by])
+          slot_duration, valid_from, valid_until, created_by, description_text])
 
     start_h, start_m = map(int, start_time.split(":"))
     end_h, end_m = map(int, end_time.split(":"))
@@ -156,13 +158,14 @@ def generate_slots(space_id, day_of_week, start_time, end_time,
                 db.execute("""
                     INSERT OR IGNORE INTO slots
                         (space_id, start_time, end_time,
-                         allows_recurring, created_by)
-                    VALUES (?, ?, ?, ?, ?)
+                         allows_recurring, created_by, description_text)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 """, [space_id,
                       slot_start.strftime("%Y-%m-%d %H:%M"),
                       slot_end.strftime("%Y-%m-%d %H:%M"),
                       allows_recurring,
-                      created_by])
+                      created_by,
+                      description_text])
                 slot_start = slot_end
                 count += 1
         current += timedelta(days=1)

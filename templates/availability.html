@@ -88,9 +88,19 @@
                     <div>
                         <label class="checkbox-label">
                             <input type="checkbox" name="allows_recurring" value="1" checked>
-                            Allow weekly vakiovuoro booking for these slots
+                            Allow weekly timeslots booking for these slots
                         </label>
                     </div>
+                <div>
+                    <label for="description_text">Additional information for users (optional)</label>
+                    <textarea
+                        id="description_text"
+                        name="description_text"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Provide any information about the space, e.g. location (top floor) or max capacity of the space is x people."
+                    ></textarea>
+                </div>
                 <button type="submit">Generate slots</button>
             </form>
         </div>
